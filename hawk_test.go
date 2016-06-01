@@ -1,4 +1,4 @@
-package hawk
+package hawk /* import "gozilla.io/hawk" */
 
 import (
 	"crypto/sha1"
@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	. "launchpad.net/gocheck"
+	. "gopkg.in/check.v1"
 )
 
 // Hook up gocheck into the "go test" runner.

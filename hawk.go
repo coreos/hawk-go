@@ -1,10 +1,12 @@
 // Package hawk implements the Hawk HTTP authentication scheme.
-package hawk
+
+package hawk /* import "go.mozilla.org/hawk" */
 
 import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"hash"
@@ -80,7 +82,14 @@ type Credentials struct {
 	Delegate string
 }
 
-func (creds *Credentials) MAC() hash.Hash { return hmac.New(creds.Hash, []byte(creds.Key)) }
+func (creds *Credentials) MAC() hash.Hash {
+	if creds.Hash != nil {
+		return hmac.New(creds.Hash, []byte(creds.Key))
+	} else {
+		// use a default hash
+		return hmac.New(sha256.New, []byte(creds.Key))
+	}
+}
 
 type AuthType int
 
@@ -545,7 +554,7 @@ func (auth *Auth) PayloadHash(contentType string) hash.Hash {
 // ValidHash writes the final newline to h and checks if it matches auth.Hash.
 func (auth *Auth) ValidHash(h hash.Hash) bool {
 	h.Write([]byte("\n"))
-	return bytes.Equal(h.Sum(nil), auth.Hash)
+	return hmac.Equal(h.Sum(nil), auth.Hash)
 }
 
 // SetHash writes the final newline to h and sets auth.Hash to the sum. This is
